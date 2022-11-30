@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 
-	// "fmt"
 	"net/http"
 	"time"
 
+	"example/server/configs"
 	"example/server/entities"
 	"example/server/responses"
 
@@ -15,12 +15,11 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var (
-	UsersCollection *mongo.Collection
+	UsersCollection *mongo.Collection = configs.GetCollection(configs.DB, "users")
 )
 
 var validate = validator.New()
@@ -48,6 +47,7 @@ func CreateUser() http.HandlerFunc {
 		}
 
 		newUser := entities.User{
+			Id:   user.Id,
 			Name: user.Name,
 			Age:  user.Age,
 		}
@@ -64,6 +64,7 @@ func CreateUser() http.HandlerFunc {
 		json.NewEncoder(rw).Encode(response)
 	}
 }
+
 func GetAUser() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -72,7 +73,7 @@ func GetAUser() http.HandlerFunc {
 		var user entities.User
 		defer cancel()
 
-		objId, _ := primitive.ObjectIDFromHex(userId)
+		objId := userId
 
 		err := UsersCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&user)
 		if err != nil {
@@ -96,7 +97,7 @@ func EditAUser() http.HandlerFunc {
 		var user entities.User
 		defer cancel()
 
-		objId, _ := primitive.ObjectIDFromHex(userId)
+		objId := userId
 
 		//validate the request body
 		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
@@ -148,7 +149,7 @@ func DeleteAUser() http.HandlerFunc {
 		userId := params["userId"]
 		defer cancel()
 
-		objId, _ := primitive.ObjectIDFromHex(userId)
+		objId := userId
 
 		result, err := UsersCollection.DeleteOne(ctx, bson.M{"_id": objId})
 

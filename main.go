@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/rs/cors"
+
 	"github.com/gorilla/mux"
 
 	"example/server/configs"
@@ -25,5 +27,14 @@ func main() {
 	// Register Routes
 	routes.UserRoute(router)
 
-	log.Fatal(http.ListenAndServe(":6000", router))
+	co := cors.New(cors.Options{
+		AllowedMethods:   []string{"GET", "POST", "DELETE", "PUT"},
+		AllowCredentials: true,
+		// Enable Debugging for testing, consider disabling in production
+		Debug: true,
+	})
+
+	handler := co.Handler(router)
+
+	log.Fatal(http.ListenAndServe(":3001", handler))
 }
