@@ -18,19 +18,19 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var (
-	UsersCollection *mongo.Collection = configs.GetCollection(configs.DB, "users")
-)
+// Define UsersCollection
+var UsersCollection *mongo.Collection = configs.GetCollection(configs.DB, "users")
 
 var validate = validator.New()
 
+// Create new user controller
 func CreateUser() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		var user entities.User
 		defer cancel()
 
-		//validate the request body
+		//Validate the request body
 		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 			response := responses.UserResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": err.Error()}}
@@ -38,7 +38,7 @@ func CreateUser() http.HandlerFunc {
 			return
 		}
 
-		//use the validator library to validate required fields
+		//Use the validator library to validate required fields
 		if validationErr := validate.Struct(&user); validationErr != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 			response := responses.UserResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": validationErr.Error()}}
@@ -46,6 +46,7 @@ func CreateUser() http.HandlerFunc {
 			return
 		}
 
+		//User to create
 		newUser := entities.User{
 			Id:   user.Id,
 			Name: user.Name,
@@ -59,12 +60,14 @@ func CreateUser() http.HandlerFunc {
 			return
 		}
 
+		//OnSuccess Response
 		rw.WriteHeader(http.StatusCreated)
 		response := responses.UserResponse{Status: http.StatusCreated, Message: "success", Data: map[string]interface{}{"data": result}}
 		json.NewEncoder(rw).Encode(response)
 	}
 }
 
+// Get a single user controller
 func GetAUser() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -73,7 +76,7 @@ func GetAUser() http.HandlerFunc {
 		var user entities.User
 		defer cancel()
 
-		objId := userId
+		objId := userId //ID to search for
 
 		err := UsersCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&user)
 		if err != nil {
@@ -83,12 +86,14 @@ func GetAUser() http.HandlerFunc {
 			return
 		}
 
+		//OnSuccess Response
 		rw.WriteHeader(http.StatusOK)
 		response := responses.UserResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": user}}
 		json.NewEncoder(rw).Encode(response)
 	}
 }
 
+// Edit a user controller
 func EditAUser() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -97,9 +102,9 @@ func EditAUser() http.HandlerFunc {
 		var user entities.User
 		defer cancel()
 
-		objId := userId
+		objId := userId //ID to search for
 
-		//validate the request body
+		//Validate the request body
 		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 			response := responses.UserResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": err.Error()}}
@@ -107,7 +112,7 @@ func EditAUser() http.HandlerFunc {
 			return
 		}
 
-		//use the validator library to validate required fields
+		//Use the validator library to validate required fields
 		if validationErr := validate.Struct(&user); validationErr != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 			response := responses.UserResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": validationErr.Error()}}
@@ -115,7 +120,9 @@ func EditAUser() http.HandlerFunc {
 			return
 		}
 
+		//Define new user.name and user.age for updating action
 		update := bson.M{"name": user.Name, "age": user.Age}
+
 		result, err := UsersCollection.UpdateOne(ctx, bson.M{"_id": objId}, bson.M{"$set": update})
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
@@ -124,7 +131,7 @@ func EditAUser() http.HandlerFunc {
 			return
 		}
 
-		//get updated user details
+		//Get updated user details
 		var updatedUser entities.User
 		if result.MatchedCount == 1 {
 			err := UsersCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&updatedUser)
@@ -136,12 +143,14 @@ func EditAUser() http.HandlerFunc {
 			}
 		}
 
+		//OnSuccess Response
 		rw.WriteHeader(http.StatusOK)
 		response := responses.UserResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": updatedUser}}
 		json.NewEncoder(rw).Encode(response)
 	}
 }
 
+// Delete a user controller
 func DeleteAUser() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -149,7 +158,7 @@ func DeleteAUser() http.HandlerFunc {
 		userId := params["userId"]
 		defer cancel()
 
-		objId := userId
+		objId := userId //ID to search for
 
 		result, err := UsersCollection.DeleteOne(ctx, bson.M{"_id": objId})
 
@@ -167,12 +176,14 @@ func DeleteAUser() http.HandlerFunc {
 			return
 		}
 
+		//OnSuccess Response
 		rw.WriteHeader(http.StatusOK)
 		response := responses.UserResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": "User successfully deleted!"}}
 		json.NewEncoder(rw).Encode(response)
 	}
 }
 
+// Get all users from the database controller
 func GetAllUser() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -188,7 +199,7 @@ func GetAllUser() http.HandlerFunc {
 			return
 		}
 
-		//reading from the db in an optimal way
+		//Reading from the db in an optimal way
 		defer results.Close(ctx)
 		for results.Next(ctx) {
 			var singleUser entities.User
@@ -200,6 +211,7 @@ func GetAllUser() http.HandlerFunc {
 			users = append(users, singleUser)
 		}
 
+		//OnSuccess Response
 		rw.WriteHeader(http.StatusOK)
 		response := responses.UserResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": users}}
 		json.NewEncoder(rw).Encode(response)

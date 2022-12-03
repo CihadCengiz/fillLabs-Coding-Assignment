@@ -1,7 +1,8 @@
 #data-table{
-    height: auto;
+    height: 100vh;
     width: auto;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
@@ -14,10 +15,38 @@ table {
 td,
 th {
     border: 1px solid #000000;
-    text-align: left;
-    padding: 8px;
+    text-align: center;
+    padding: 10px;
 }
 
 #form {
     padding: 10px;
+}
+
+button {
+    padding: 10px;
+    margin: 20px 1px 0 1px;
+    color: white;
+    background-color: #555;
+    border: none;
+}
+
+button:hover {
+    background-color: #888;
+    cursor: pointer;
+}
+
+.button-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+label {
+    padding-top: 10px;
 }

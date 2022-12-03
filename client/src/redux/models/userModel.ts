@@ -1,6 +1,7 @@
 export interface UserModel {
-    users: [];
-    id: string;
-    name: string;
-    age: number | null;
+  users: [];
+  id: string;
+  name: string;
+  age: number | null;
+  selected: number;
 }

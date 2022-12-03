@@ -1,3 +1,5 @@
+//.env config file
+
 package configs
 
 import (

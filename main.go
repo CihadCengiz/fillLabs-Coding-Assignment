@@ -12,12 +12,6 @@ import (
 	"example/server/routes"
 )
 
-type User struct {
-	ID   string `bson:"_id,omitempty"`
-	Name string `bson:"name,omitempty"`
-	Age  int    `bson:"age,omitempty"`
-}
-
 func main() {
 	//Connect to database
 	configs.ConnectDB()
@@ -27,6 +21,7 @@ func main() {
 	// Register Routes
 	routes.UserRoute(router)
 
+	//Cors setup for cross origin requests
 	co := cors.New(cors.Options{
 		AllowedMethods:   []string{"GET", "POST", "DELETE", "PUT"},
 		AllowCredentials: true,
