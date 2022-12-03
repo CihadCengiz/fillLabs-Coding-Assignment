@@ -27,20 +27,25 @@ export default function DeleteUser() {
   useEffect(() => {
     dispatch(fetchUsers());
   }, []);
-  
+
   //Update selectedId if users array changes
   useEffect(() => {
-    if(users.length > 0) {
+    if (users.length > 0) {
       const selectedId = users.filter((_, index) => index === 0);
       dispatch(setSelectedId(selectedId[0]['id']));
     }
-  },[users])
+  }, [users]);
 
   return (
     <div id='form'>
-      <form>
+      <form data-testid='form'>
         <label htmlFor='row'>Choose an ID to delete:</label>
-        <select name='row' id='row' onChange={(e) => handleSelectedId(e)}>
+        <select
+          name='row'
+          id='row'
+          data-testid='select'
+          onChange={(e) => handleSelectedId(e)}
+        >
           {users &&
             users.map((user: User) => {
               return (
@@ -51,12 +56,14 @@ export default function DeleteUser() {
             })}
         </select>
       </form>
-      <div className='button-wrapper'>
+      <div className='button-wrapper' role='button'>
         <Link to='/'>
-          <button>Back</button>
+          <button data-testid='button-1'>Back</button>
         </Link>
         <Link to='/'>
-          <button onClick={handleDeleteUser}>Delete</button>
+          <button data-testid='button-2' onClick={handleDeleteUser}>
+            Delete
+          </button>
         </Link>
       </div>
     </div>

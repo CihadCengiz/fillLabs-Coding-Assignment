@@ -32,20 +32,21 @@ export default function NewUser() {
 
   return (
     <div>
-      <form>
+      <form data-testid="form">
         <input
           id='name'
+          data-testid="input-1"
           placeholder={'Name'}
           onChange={(e) => handleNewName(e)}
         />
-        <input id='age' placeholder={'Age'} onChange={(e) => handleNewAge(e)} />
+        <input id='age' data-testid="input-2" placeholder={'Age'} type="number" onChange={(e) => handleNewAge(e)} />
       </form>
-      <div className="button-wrapper">
+      <div className="button-wrapper" role="button">
         <Link to='/'>
-          <button>Back</button>
+          <button data-testid="button-1">Back</button>
         </Link>
         <Link to='/'>
-          <button onClick={handleNewUser}>Create</button>
+          <button data-testid="button-2" onClick={handleNewUser}>Create</button>
         </Link>
       </div>
     </div>

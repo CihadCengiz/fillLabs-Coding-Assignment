@@ -23,7 +23,7 @@ export default function Users() {
 
   return (
     <div id='data-table'>
-      <table>
+      <table role="table">
         <tbody>
           <tr>
             <th>ID</th>
@@ -42,15 +42,15 @@ export default function Users() {
             })}
         </tbody>
       </table>
-      <div id='buttons'>
+      <div id='buttons' role="button">
         <Link to='/new'>
-          <button>New</button>
+          <button data-testid="button1">New</button>
         </Link>
         <Link to='/edit'>
-          <button>Edit</button>
+          <button data-testid="button2">Edit</button>
         </Link>
         <Link to='/delete'>
-          <button>Delete</button>
+          <button data-testid="button3">Delete</button>
         </Link>
       </div>
     </div>
